@@ -42,7 +42,7 @@ export function AppContent({ children }: { children: React.ReactNode }) {
   return (
     <div className="relative flex flex-col min-h-screen">
       {!isLoginPage && <Header />}
-      <div className="flex-grow">
+      <div className="flex-grow pb-16">
         {children}
       </div>
       {!isLoginPage && <BottomNav />}
