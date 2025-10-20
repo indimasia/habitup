@@ -9,10 +9,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Flame, CheckCircle, TrendingUp, History } from 'lucide-react';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { calculateLongestStreak } from '@/lib/utils';
 import { HabitItem } from '@/components/habits/habit-item';
 import { format } from 'date-fns';
+import { Calendar } from '@/components/ui/calendar';
 
 function ProfileStats() {
   const { habits, isLoaded } = useHabits();
@@ -99,7 +100,9 @@ function AccountSettings() {
 
 function HabitHistory() {
   const { habits, toggleHabitCompletion } = useHabits();
-  const todayStr = format(new Date(), 'yyyy-MM-dd');
+  const [date, setDate] = useState<Date | undefined>(new Date());
+  
+  const selectedDateStr = date ? format(date, 'yyyy-MM-dd') : '';
 
   return (
     <Card>
@@ -108,21 +111,31 @@ function HabitHistory() {
                 <History className="h-6 w-6" />
                 <CardTitle>Your Habit History</CardTitle>
             </div>
-            <CardDescription>An overview of all your habits.</CardDescription>
+            <CardDescription>Select a date to view your habit completions.</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-3">
+        <CardContent className="grid gap-4 md:grid-cols-2">
+          <div className="flex justify-center">
+            <Calendar
+              mode="single"
+              selected={date}
+              onSelect={setDate}
+              className="rounded-md border"
+            />
+          </div>
+          <div className="space-y-3">
              {habits.length > 0 ? (
                 habits.map(habit => (
                     <HabitItem
-                        key={habit.id}
+                        key={`${habit.id}-${selectedDateStr}`}
                         habit={habit}
-                        isCompleted={habit.completions.some(c => c.date === todayStr)}
-                        onToggle={() => toggleHabitCompletion(habit.id, todayStr)}
+                        isCompleted={habit.completions.some(c => c.date === selectedDateStr)}
+                        onToggle={() => toggleHabitCompletion(habit.id, selectedDateStr)}
                     />
                 ))
             ) : (
                 <p className="text-muted-foreground text-center py-4">You haven't created any habits yet.</p>
             )}
+          </div>
         </CardContent>
     </Card>
   )
@@ -133,7 +146,7 @@ export default function ProfilePage() {
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
-      <main className="flex-1 container mx-auto p-4 md:p-6 lg:p-8 max-w-4xl space-y-8">
+      <main className="flex-1 container mx-auto p-4 md:p-6 lg:p-8 max-w-6xl space-y-8">
         <div>
             <h1 className="text-3xl font-bold font-headline">Your Profile</h1>
             <p className="text-muted-foreground">Your progress, your settings.</p>
@@ -143,11 +156,11 @@ export default function ProfilePage() {
 
         <Separator />
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="md:col-span-1">
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+            <div className="xl:col-span-1">
                 <AccountSettings />
             </div>
-            <div className="md:col-span-2">
+            <div className="xl:col-span-2">
                 <HabitHistory />
             </div>
         </div>
