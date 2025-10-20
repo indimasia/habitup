@@ -105,6 +105,16 @@ export const topHabits = [
 
 export const timelineEvents = [
   {
+    id: 'event-0',
+    type: 'post',
+    user: 'You',
+    avatar: 'https://api.dicebear.com/7.x/initials/svg?seed=You',
+    timestamp: '15m ago',
+    content: 'Just created my first habit! Excited to start this journey.',
+    likes: 2,
+    comments: [],
+  },
+  {
     id: 'event-1',
     type: 'post',
     user: 'Sarah',
@@ -124,6 +134,14 @@ export const timelineEvents = [
     avatar: 'https://api.dicebear.com/7.x/initials/svg?seed=Alex',
     timestamp: '3h ago',
     habitName: 'Read for 15 minutes',
+  },
+  {
+    id: 'event-yours',
+    type: 'habitCompletion',
+    user: 'You',
+    avatar: 'https://api.dicebear.com/7.x/initials/svg?seed=You',
+    timestamp: '4h ago',
+    habitName: 'Drink 8 glasses of water',
   },
   {
     id: 'event-3',
