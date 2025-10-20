@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect, useMemo } from 'react';
-import { format, subDays, addDays, isSameDay, isAfter, isBefore } from 'date-fns';
+import { format, subDays, addDays, isSameDay, isToday } from 'date-fns';
 import { useHabits } from '@/hooks/use-habits';
 import { DAY_NAMES, type Habit } from '@/lib/types';
 import { Progress } from '@/components/ui/progress';
@@ -69,20 +69,19 @@ export function HabitDashboard() {
   };
   
   const today = new Date();
-  const sevenDaysAgo = subDays(today, 6);
+  const yesterday = subDays(today, 1);
 
-  const canGoBack = !isSameDay(currentDate, sevenDaysAgo);
-  const canGoForward = !isSameDay(currentDate, today);
+  const isViewingToday = isSameDay(currentDate, today);
 
   const handlePrevDay = () => {
-    if (canGoBack) {
-      setCurrentDate(prevDate => subDays(prevDate, 1));
+    if (isViewingToday) {
+      setCurrentDate(yesterday);
     }
   };
 
   const handleNextDay = () => {
-    if (canGoForward) {
-      setCurrentDate(prevDate => addDays(prevDate, 1));
+    if (!isViewingToday) {
+      setCurrentDate(today);
     }
   };
 
@@ -111,19 +110,19 @@ export function HabitDashboard() {
       )
   }
 
-  const dateLabel = isSameDay(currentDate, today) ? 'Today' : format(currentDate, 'EEEE, MMMM do');
+  const dateLabel = isToday(currentDate) ? 'Today' : 'Yesterday';
 
   return (
     <Card>
       <CardHeader>
         <div className="flex justify-between items-center">
-          <Button variant="ghost" size="icon" onClick={handlePrevDay} disabled={!canGoBack} aria-label="Previous day">
+          <Button variant="ghost" size="icon" onClick={handlePrevDay} disabled={!isViewingToday} aria-label="Previous day">
             <ChevronLeft className="h-6 w-6" />
           </Button>
           <CardTitle className="text-xl font-bold font-headline text-center">
             {dateLabel}
           </CardTitle>
-          <Button variant="ghost" size="icon" onClick={handleNextDay} disabled={!canGoForward} aria-label="Next day">
+          <Button variant="ghost" size="icon" onClick={handleNextDay} disabled={isViewingToday} aria-label="Next day">
             <ChevronRight className="h-6 w-6" />
           </Button>
         </div>
