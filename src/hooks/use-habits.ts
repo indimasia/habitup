@@ -32,79 +32,80 @@ export function useHabits() {
   const [habits, setHabits] = useState<Habit[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
 
+  // Load habits from localStorage on initial render
   useEffect(() => {
-    let initialHabits: Habit[];
     try {
       const storedHabits = localStorage.getItem(HABITS_STORAGE_KEY);
       if (storedHabits) {
-        initialHabits = JSON.parse(storedHabits);
+        setHabits(JSON.parse(storedHabits));
       } else {
-        initialHabits = createInitialHabits();
+        const initialHabits = createInitialHabits();
+        setHabits(initialHabits);
         localStorage.setItem(HABITS_STORAGE_KEY, JSON.stringify(initialHabits));
       }
     } catch (error) {
       console.error('Failed to load habits from localStorage', error);
-      initialHabits = createInitialHabits();
+      setHabits(createInitialHabits());
     } finally {
-      setHabits(initialHabits);
       setIsLoaded(true);
     }
   }, []);
 
-  useEffect(() => {
+  // Persist habits to localStorage whenever they change
+  const saveHabits = useCallback((updatedHabits: Habit[]) => {
+    setHabits(updatedHabits);
     if (isLoaded) {
       try {
-        localStorage.setItem(HABITS_STORAGE_KEY, JSON.stringify(habits));
+        localStorage.setItem(HABITS_STORAGE_KEY, JSON.stringify(updatedHabits));
       } catch (error) {
         console.error('Failed to save habits to localStorage', error);
         toast({
-            variant: 'destructive',
-            title: 'Error Saving Data',
-            description: 'Your changes could not be saved to your device.',
+          variant: 'destructive',
+          title: 'Error Saving Data',
+          description: 'Your changes could not be saved to your device.',
         });
       }
     }
-  }, [habits, isLoaded]);
+  }, [isLoaded]);
+
 
   const addHabit = useCallback(
     (newHabitData: Omit<Habit, 'id' | 'createdAt' | 'completions'>) => {
-      setHabits(prevHabits => {
-        const newHabit: Habit = {
-          ...newHabitData,
-          id: `habit-${Date.now()}`,
-          createdAt: new Date().toISOString(),
-          completions: [],
-        };
-        toast({
-          title: 'Habit Created!',
-          description: `You're on your way to building "${newHabit.name}".`,
-        });
-        return [...prevHabits, newHabit];
+      const newHabit: Habit = {
+        ...newHabitData,
+        id: `habit-${Date.now()}`,
+        createdAt: new Date().toISOString(),
+        completions: [],
+      };
+      saveHabits([...habits, newHabit]);
+      toast({
+        title: 'Habit Created!',
+        description: `You're on your way to building "${newHabit.name}".`,
       });
     },
-    []
+    [habits, saveHabits]
   );
 
   const updateHabit = useCallback(
     (habitId: string, updatedData: Omit<Habit, 'id' | 'createdAt' | 'completions'>) => {
-      setHabits(prevHabits =>
-        prevHabits.map(habit => 
-          habit.id === habitId ? { ...habit, ...updatedData } : habit
-        )
+      const updatedHabits = habits.map(habit =>
+        habit.id === habitId ? { ...habit, ...updatedData } : habit
       );
+      saveHabits(updatedHabits);
       toast({
         title: 'Habit Updated',
         description: `Your habit "${updatedData.name}" has been saved.`,
       });
     },
-    []
+    [habits, saveHabits]
   );
 
   const deleteHabit = useCallback(
     (habitId: string) => {
       const habitToDelete = habits.find(h => h.id === habitId);
       if (habitToDelete) {
-        setHabits(prevHabits => prevHabits.filter(habit => habit.id !== habitId));
+        const updatedHabits = habits.filter(habit => habit.id !== habitId);
+        saveHabits(updatedHabits);
         toast({
           title: 'Habit Deleted',
           description: `You have deleted the habit "${habitToDelete.name}".`,
@@ -112,25 +113,24 @@ export function useHabits() {
         });
       }
     },
-    [habits]
+    [habits, saveHabits]
   );
 
   const toggleHabitCompletion = useCallback(
     (habitId: string, date: string) => {
-      setHabits(prevHabits =>
-        prevHabits.map(habit => {
-          if (habit.id === habitId) {
-            const isCompleted = habit.completions.some(c => c.date === date);
-            const newCompletions = isCompleted
-              ? habit.completions.filter(c => c.date !== date)
-              : [...habit.completions, { date }];
-            return { ...habit, completions: newCompletions };
-          }
-          return habit;
-        })
-      );
+      const updatedHabits = habits.map(habit => {
+        if (habit.id === habitId) {
+          const isCompleted = habit.completions.some(c => c.date === date);
+          const newCompletions = isCompleted
+            ? habit.completions.filter(c => c.date !== date)
+            : [...habit.completions, { date }];
+          return { ...habit, completions: newCompletions };
+        }
+        return habit;
+      });
+      saveHabits(updatedHabits);
     },
-    []
+    [habits, saveHabits]
   );
 
   const getHabitById = useCallback(
