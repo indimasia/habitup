@@ -18,35 +18,16 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Checkbox } from '@/components/ui/checkbox';
 import { useHabits } from '@/hooks/use-habits';
-import { DAY_NAMES, DayOfWeek, Habit } from '@/lib/types';
+import { Habit } from '@/lib/types';
 import { IconPicker } from './icon-picker';
 import { HabitIcon } from '@/lib/icons';
 
-const addHabitSchema = z
-  .object({
+const addHabitSchema = z.object({
     name: z.string().min(3, 'Habit name must be at least 3 characters long.'),
     description: z.string().max(200, 'Description is too long.').optional(),
     icon: z.string().min(1, 'Please select an icon.'),
-    frequencyType: z.enum(['daily', 'specific']),
-    specificDays: z
-      .array(z.string())
-      .optional(),
-  })
-  .refine(
-    data => {
-      if (data.frequencyType === 'specific') {
-        return data.specificDays && data.specificDays.length > 0;
-      }
-      return true;
-    },
-    {
-      message: 'Please select at least one day.',
-      path: ['specificDays'],
-    }
-  );
+  });
 
 type AddHabitFormValues = z.infer<typeof addHabitSchema>;
 
@@ -65,8 +46,6 @@ export function AddHabitForm({ habitToEdit }: AddHabitFormProps) {
       name: '',
       description: '',
       icon: 'Repeat',
-      frequencyType: 'daily',
-      specificDays: [],
     },
   });
 
@@ -76,23 +55,19 @@ export function AddHabitForm({ habitToEdit }: AddHabitFormProps) {
         name: habitToEdit.name,
         description: habitToEdit.description,
         icon: habitToEdit.icon,
-        frequencyType: habitToEdit.frequency === 'daily' ? 'daily' : 'specific',
-        specificDays: Array.isArray(habitToEdit.frequency) ? habitToEdit.frequency : [],
       });
     }
   }, [habitToEdit, form]);
-
-  const frequencyType = form.watch('frequencyType');
 
   function onSubmit(data: AddHabitFormValues) {
     const habitData = {
       name: data.name,
       description: data.description || '',
       icon: data.icon as HabitIcon,
-      frequency: data.frequencyType === 'daily' ? 'daily' : (data.specificDays as DayOfWeek[]),
+      frequency: 'daily' as const, // All habits are daily now
     };
 
-    if (isEditMode) {
+    if (isEditMode && habitToEdit) {
         updateHabit(habitToEdit.id, habitData);
     } else {
         addHabit(habitData);
@@ -143,85 +118,6 @@ export function AddHabitForm({ habitToEdit }: AddHabitFormProps) {
             </FormItem>
           )}
         />
-        <FormField
-          control={form.control}
-          name="frequencyType"
-          render={({ field }) => (
-            <FormItem className="space-y-3">
-              <FormLabel>Frequency</FormLabel>
-              <FormControl>
-                <RadioGroup
-                  onValueChange={field.onChange}
-                  value={field.value}
-                  className="flex flex-col space-y-1"
-                >
-                  <FormItem className="flex items-center space-x-3 space-y-0">
-                    <FormControl>
-                      <RadioGroupItem value="daily" />
-                    </FormControl>
-                    <FormLabel className="font-normal">Daily</FormLabel>
-                  </FormItem>
-                  <FormItem className="flex items-center space-x-3 space-y-0">
-                    <FormControl>
-                      <RadioGroupItem value="specific" />
-                    </FormControl>
-                    <FormLabel className="font-normal">Specific days of the week</FormLabel>
-                  </FormItem>
-                </RadioGroup>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        {frequencyType === 'specific' && (
-          <FormField
-            control={form.control}
-            name="specificDays"
-            render={() => (
-              <FormItem>
-                <div className="mb-4">
-                  <FormLabel>Select Days</FormLabel>
-                </div>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                {DAY_NAMES.map(day => (
-                  <FormField
-                    key={day}
-                    control={form.control}
-                    name="specificDays"
-                    render={({ field }) => {
-                      return (
-                        <FormItem
-                          key={day}
-                          className="flex flex-row items-center space-x-2 space-y-0"
-                        >
-                          <FormControl>
-                            <Checkbox
-                              checked={field.value?.includes(day)}
-                              onCheckedChange={checked => {
-                                return checked
-                                  ? field.onChange([...(field.value || []), day])
-                                  : field.onChange(
-                                      field.value?.filter(
-                                        value => value !== day
-                                      )
-                                    )
-                              }}
-                            />
-                          </FormControl>
-                          <FormLabel className="text-sm font-normal">
-                            {day}
-                          </FormLabel>
-                        </FormItem>
-                      )
-                    }}
-                  />
-                ))}
-                </div>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        )}
         <div className="flex gap-2 justify-end">
           <Button type="button" variant="outline" onClick={() => router.back()}>
               Cancel

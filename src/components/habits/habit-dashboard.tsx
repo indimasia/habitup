@@ -1,6 +1,6 @@
 'use client';
 import { useState, useMemo } from 'react';
-import { format, subDays, addDays, isSameDay, isToday } from 'date-fns';
+import { format, subDays, addDays, isSameDay, isToday, isYesterday } from 'date-fns';
 import { useHabits } from '@/hooks/use-habits';
 import { DAY_NAMES, type Habit } from '@/lib/types';
 import { Progress } from '@/components/ui/progress';
@@ -13,16 +13,8 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 const DayHabitList = ({ date, habits, onToggle }: { date: Date, habits: Habit[], onToggle: (habitId: string, date: string) => void }) => {
   const dateStr = format(date, 'yyyy-MM-dd');
-  const dayOfWeek = DAY_NAMES[date.getDay()];
-
-  const habitsForDay = useMemo(() => {
-    return habits.filter(habit => {
-      if (habit.frequency === 'daily') {
-        return true;
-      }
-      return habit.frequency.includes(dayOfWeek);
-    });
-  }, [habits, dayOfWeek]);
+  
+  const habitsForDay = habits; // All habits are daily now
 
   const completedCount = useMemo(() => {
     return habitsForDay.filter(habit =>
@@ -69,14 +61,16 @@ export function HabitDashboard() {
   };
 
   const handlePrevDay = () => {
-    setCurrentDate(subDays(currentDate, 1));
+    if (isToday(currentDate)) {
+      setCurrentDate(subDays(currentDate, 1));
+    }
   };
 
   const handleNextDay = () => {
-    setCurrentDate(addDays(currentDate, 1));
+    if (isYesterday(currentDate)) {
+      setCurrentDate(addDays(currentDate, 1));
+    }
   };
-
-  const isViewingToday = isToday(currentDate);
 
   if (!isLoaded) {
     return (
@@ -102,19 +96,19 @@ export function HabitDashboard() {
       )
   }
 
-  const dateLabel = isToday(currentDate) ? 'Today' : format(currentDate, 'MMM d, yyyy');
+  const dateLabel = isToday(currentDate) ? 'Today' : 'Yesterday';
 
   return (
     <Card>
       <CardHeader>
         <div className="flex justify-between items-center">
-          <Button variant="ghost" size="icon" onClick={handlePrevDay} aria-label="Previous day">
+          <Button variant="ghost" size="icon" onClick={handlePrevDay} disabled={isYesterday(currentDate)} aria-label="Previous day">
             <ChevronLeft className="h-6 w-6" />
           </Button>
           <CardTitle className="text-xl font-bold font-headline text-center">
             {dateLabel}
           </CardTitle>
-          <Button variant="ghost" size="icon" onClick={handleNextDay} disabled={isViewingToday} aria-label="Next day">
+          <Button variant="ghost" size="icon" onClick={handleNextDay} disabled={isToday(currentDate)} aria-label="Next day">
             <ChevronRight className="h-6 w-6" />
           </Button>
         </div>

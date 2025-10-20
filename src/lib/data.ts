@@ -18,7 +18,7 @@ export const DEFAULT_HABITS: Omit<Habit, 'id' | 'createdAt' | 'completions'>[] =
     name: 'Morning workout',
     description: 'Start the day with some physical activity.',
     icon: 'Dumbbell',
-    frequency: ['Mon', 'Wed', 'Fri'],
+    frequency: 'daily',
   },
   {
     name: 'Meditate for 5 minutes',
