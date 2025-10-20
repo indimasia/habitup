@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 import { cn } from '@/lib/utils';
 import { Toaster } from '@/components/ui/toaster';
+import BottomNav from '@/components/layout/bottom-nav';
 
 export const metadata: Metadata = {
   title: 'HabitZen',
@@ -24,7 +25,12 @@ export default function RootLayout({
         />
       </head>
       <body className={cn('min-h-screen bg-background font-body antialiased')}>
-        {children}
+        <div className="relative flex flex-col min-h-screen">
+          <div className="flex-grow">
+            {children}
+          </div>
+          <BottomNav />
+        </div>
         <Toaster />
       </body>
     </html>
