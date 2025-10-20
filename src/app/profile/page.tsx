@@ -127,7 +127,7 @@ function HabitHistory() {
             </div>
             <CardDescription>Select a date to view your habit completions.</CardDescription>
         </CardHeader>
-        <CardContent className="grid gap-4 md:grid-cols-2">
+        <CardContent className="grid gap-8 md:grid-cols-2">
           <div className="flex justify-center">
             <Calendar
               mode="single"
@@ -167,11 +167,11 @@ export default function ProfilePage() {
 
         <Separator />
 
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
-            <div className="xl:col-span-1">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="lg:col-span-1">
                 <AccountSettings />
             </div>
-            <div className="xl:col-span-2">
+            <div className="lg:col-span-2">
                 <HabitHistory />
             </div>
         </div>
