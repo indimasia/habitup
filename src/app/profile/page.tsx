@@ -80,15 +80,15 @@ function AccountSettings() {
                         <AvatarFallback>{username.charAt(0).toUpperCase()}</AvatarFallback>
                     </Avatar>
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-2" suppressHydrationWarning>
                     <Label htmlFor="username">Username</Label>
                     <Input id="username" value={username} onChange={(e) => setUsername(e.target.value)} />
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-2" suppressHydrationWarning>
                     <Label htmlFor="password">New Password</Label>
                     <Input id="password" type="password" placeholder="••••••••" />
                 </div>
-                 <div className="space-y-2">
+                 <div className="space-y-2" suppressHydrationWarning>
                     <Label htmlFor="confirm-password">Confirm Password</Label>
                     <Input id="confirm-password" type="password" placeholder="••••••••" />
                 </div>
