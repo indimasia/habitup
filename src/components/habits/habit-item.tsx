@@ -41,7 +41,7 @@ export function HabitItem({ habit, isCompleted, onToggle }: HabitItemProps) {
   return (
     <div
       className={cn(
-        'transition-all duration-200 ease-in-out flex items-center gap-4 p-3 rounded-lg',
+        'transition-all duration-200 ease-in-out flex items-center gap-3 sm:gap-4 p-3 rounded-lg',
         isCompleted ? 'bg-secondary/70' : 'bg-card/50 hover:bg-card'
       )}
     >
@@ -62,11 +62,11 @@ export function HabitItem({ habit, isCompleted, onToggle }: HabitItemProps) {
         >
           {habit.name}
         </label>
-        {habit.description && <p className="text-sm text-muted-foreground">{habit.description}</p>}
+        {habit.description && <p className="text-sm text-muted-foreground hidden sm:block">{habit.description}</p>}
       </div>
 
-      <div className="flex items-center gap-4 text-muted-foreground">
-        <div className="flex items-center gap-1 text-sm font-medium">
+      <div className="flex items-center gap-2 sm:gap-4 text-muted-foreground">
+        <div className="hidden sm:flex items-center gap-1 text-sm font-medium">
           <Icon className="h-5 w-5 text-primary/80" />
         </div>
         {streak > 0 && (
