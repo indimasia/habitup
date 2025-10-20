@@ -222,12 +222,17 @@ export function AddHabitForm({ habitToEdit }: AddHabitFormProps) {
             )}
           />
         )}
-        <Button type="submit" className="w-full sm:w-auto" disabled={form.formState.isSubmitting}>
-          {form.formState.isSubmitting 
-            ? (isEditMode ? 'Saving Changes...' : 'Creating Habit...') 
-            : (isEditMode ? 'Save Changes' : 'Create Habit')
-          }
-        </Button>
+        <div className="flex gap-2 justify-end">
+          <Button type="button" variant="outline" onClick={() => router.back()}>
+              Cancel
+          </Button>
+          <Button type="submit" disabled={form.formState.isSubmitting}>
+            {form.formState.isSubmitting 
+              ? (isEditMode ? 'Saving Changes...' : 'Creating Habit...') 
+              : (isEditMode ? 'Save Changes' : 'Create Habit')
+            }
+          </Button>
+        </div>
       </form>
     </Form>
   );
