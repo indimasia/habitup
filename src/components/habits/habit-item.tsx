@@ -18,53 +18,49 @@ export function HabitItem({ habit, isCompleted, onToggle }: HabitItemProps) {
   const streak = calculateCurrentStreak(habit.completions);
 
   return (
-    <Card
+    <div
       className={cn(
-        'transition-all duration-300 ease-in-out transform hover:shadow-lg',
-        isCompleted ? 'bg-secondary/70' : 'bg-card'
+        'transition-all duration-200 ease-in-out flex items-center gap-4 p-3 rounded-lg',
+        isCompleted ? 'bg-secondary/70' : 'bg-card/50 hover:bg-card'
       )}
     >
-      <CardContent className="p-4 flex items-center gap-4">
-        <div className="flex items-center gap-4 flex-1">
-          <Checkbox
-            id={`habit-${habit.id}`}
-            checked={isCompleted}
-            onCheckedChange={onToggle}
-            aria-label={`Mark ${habit.name} as complete`}
-            className="h-8 w-8 rounded-full data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground border-2"
-          />
-          <div className="flex-1">
-            <label
-              htmlFor={`habit-${habit.id}`}
-              className={cn(
-                'font-semibold font-headline text-lg cursor-pointer transition-opacity',
-                isCompleted ? 'line-through text-muted-foreground' : 'text-foreground'
-              )}
-            >
-              {habit.name}
-            </label>
-            <p className="text-sm text-muted-foreground">{habit.description}</p>
-          </div>
-        </div>
+      <Checkbox
+        id={`habit-${habit.id}-${new Date().getTime()}`}
+        checked={isCompleted}
+        onCheckedChange={onToggle}
+        aria-label={`Mark ${habit.name} as complete`}
+        className="h-6 w-6 rounded-full data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground border-2"
+      />
+      <div className="flex-1">
+        <label
+          htmlFor={`habit-${habit.id}-${new Date().getTime()}`}
+          className={cn(
+            'font-semibold font-headline text-base cursor-pointer transition-opacity',
+            isCompleted ? 'line-through text-muted-foreground' : 'text-foreground'
+          )}
+        >
+          {habit.name}
+        </label>
+        {habit.description && <p className="text-sm text-muted-foreground">{habit.description}</p>}
+      </div>
 
-        <div className="flex items-center gap-4 text-muted-foreground">
-           <div className="flex items-center gap-1 text-sm font-medium">
-              <Icon className="h-5 w-5 text-primary/80" />
-            </div>
-            {streak > 0 && (
-                <div className="flex items-center gap-1 text-sm font-medium" title={`${streak}-day streak`}>
-                    <Flame className="h-5 w-5 text-amber-500"/>
-                    <span className="font-headline">{streak}</span>
-                </div>
-            )}
-        </div>
-         
-        <AITipGenerator habit={habit}>
-            <button className="p-2 rounded-full hover:bg-accent transition-colors" aria-label="Get a personalized tip">
-                 <Lightbulb className="h-5 w-5 text-amber-500" />
-            </button>
-        </AITipGenerator>
-      </CardContent>
-    </Card>
+      <div className="flex items-center gap-4 text-muted-foreground">
+         <div className="flex items-center gap-1 text-sm font-medium">
+            <Icon className="h-5 w-5 text-primary/80" />
+          </div>
+          {streak > 0 && (
+              <div className="flex items-center gap-1 text-sm font-medium" title={`${streak}-day streak`}>
+                  <Flame className="h-5 w-5 text-amber-500"/>
+                  <span className="font-headline">{streak}</span>
+              </div>
+          )}
+      </div>
+       
+      <AITipGenerator habit={habit}>
+          <button className="p-2 rounded-full hover:bg-accent transition-colors" aria-label="Get a personalized tip">
+               <Lightbulb className="h-5 w-5 text-amber-500" />
+          </button>
+      </AITipGenerator>
+    </div>
   );
 }

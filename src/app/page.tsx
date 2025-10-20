@@ -5,7 +5,7 @@ export default function Home() {
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
-      <main className="flex-1 container mx-auto p-4 md:p-6 lg:p-8 max-w-3xl">
+      <main className="flex-1 container mx-auto p-4 md:p-6 lg:p-8">
         <HabitDashboard />
       </main>
       <footer className="py-6 text-center text-sm text-muted-foreground">
