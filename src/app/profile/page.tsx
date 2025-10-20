@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Flame, CheckCircle, TrendingUp, History, LogOut } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { calculateLongestStreak } from '@/lib/utils';
 import { HabitItemReadOnly } from '@/components/habits/habit-item-read-only';
 import { format } from 'date-fns';
@@ -66,7 +66,14 @@ function ProfileStats() {
 function AccountSettings() {
     const { user, logout } = useAuth();
     const [username, setUsername] = useState(user?.name || 'Anonymous');
-    const avatarUrl = user?.photoURL || `https://api.dicebear.com/7.x/initials/svg?seed=${username}`;
+    const [avatarUrl, setAvatarUrl] = useState('');
+
+    useEffect(() => {
+        if (user?.name) {
+            setUsername(user.name);
+            setAvatarUrl(`https://api.dicebear.com/7.x/initials/svg?seed=${user.name}`);
+        }
+    }, [user]);
 
     return (
         <Card>
