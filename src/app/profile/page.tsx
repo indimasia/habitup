@@ -128,7 +128,7 @@ function HabitHistory() {
             </div>
             <CardDescription>Select a date to view your habit completions.</CardDescription>
         </CardHeader>
-        <CardContent className="grid gap-8 md:grid-cols-2">
+        <CardContent className="grid gap-8 md:grid-cols-[280px_1fr]">
           <div className="flex justify-center">
             <Calendar
               mode="single"
@@ -137,21 +137,24 @@ function HabitHistory() {
               className="rounded-md border"
             />
           </div>
-          <ScrollArea className="h-72">
-            <div className="space-y-3 pr-4">
+          <div className="space-y-3">
+              <h3 className="font-semibold">{date ? format(date, "MMMM d, yyyy") : "Select a date"}</h3>
               {habits.length > 0 ? (
-                  habits.map(habit => (
-                      <HabitItemReadOnly
-                          key={`${habit.id}-${selectedDateStr}`}
-                          habit={habit}
-                          isCompleted={habit.completions.some(c => c.date === selectedDateStr)}
-                      />
-                  ))
+                  <ScrollArea className="h-72">
+                    <div className="pr-4">
+                        {habits.map(habit => (
+                            <HabitItemReadOnly
+                                key={`${habit.id}-${selectedDateStr}`}
+                                habit={habit}
+                                isCompleted={habit.completions.some(c => c.date === selectedDateStr)}
+                            />
+                        ))}
+                    </div>
+                  </ScrollArea>
               ) : (
                   <p className="text-muted-foreground text-center py-4">You haven't created any habits yet.</p>
               )}
             </div>
-          </ScrollArea>
         </CardContent>
     </Card>
   )
