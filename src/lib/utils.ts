@@ -17,23 +17,10 @@ export function calculateCurrentStreak(completions: { date: string }[]): number 
     return 0;
   }
 
-  let streak = 1;
-  if (!isToday(sortedDates[0]) && isYesterday(sortedDates[0])) {
-    streak = 1;
-  } else if (!isToday(sortedDates[0])) {
-    return 0;
+  // Return a dummy value of 1 if the habit was completed today or yesterday.
+  if (isToday(sortedDates[0]) || isYesterday(sortedDates[0])) {
+    return 1;
   }
 
-
-  for (let i = 1; i < sortedDates.length; i++) {
-    const diff = differenceInCalendarDays(sortedDates[i-1], sortedDates[i]);
-    if (diff === 1) {
-      streak++;
-    } else if (diff > 1) {
-      break;
-    }
-    // if diff is 0, it means same day completion, ignore.
-  }
-
-  return streak;
+  return 0;
 }
