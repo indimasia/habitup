@@ -14,7 +14,6 @@ import { HabitItemReadOnly } from '@/components/habits/habit-item-read-only';
 import { format } from 'date-fns';
 import { Calendar } from '@/components/ui/calendar';
 import { useAuth } from '@/context/auth-context';
-import { ScrollArea } from '@/components/ui/scroll-area';
 
 function ProfileStats() {
   const { habits, isLoaded } = useHabits();
@@ -140,17 +139,15 @@ function HabitHistory() {
           <div className="space-y-3">
               <h3 className="font-semibold">{date ? format(date, "MMMM d, yyyy") : "Select a date"}</h3>
               {habits.length > 0 ? (
-                  <ScrollArea className="h-72">
-                    <div className="pr-4">
-                        {habits.map(habit => (
-                            <HabitItemReadOnly
-                                key={`${habit.id}-${selectedDateStr}`}
-                                habit={habit}
-                                isCompleted={habit.completions.some(c => c.date === selectedDateStr)}
-                            />
-                        ))}
-                    </div>
-                  </ScrollArea>
+                  <div className="space-y-2 pr-4">
+                    {habits.map(habit => (
+                        <HabitItemReadOnly
+                            key={`${habit.id}-${selectedDateStr}`}
+                            habit={habit}
+                            isCompleted={habit.completions.some(c => c.date === selectedDateStr)}
+                        />
+                    ))}
+                  </div>
               ) : (
                   <p className="text-muted-foreground text-center py-4">You haven't created any habits yet.</p>
               )}
