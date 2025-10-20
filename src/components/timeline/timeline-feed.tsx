@@ -11,10 +11,9 @@ export function TimelineFeed() {
   const [filter, setFilter] = useState('all');
 
   const filteredEvents = timelineEvents.filter(event => {
-    if (filter === 'posts') return event.type === 'post';
-    if (filter === 'activity') return event.type === 'habitCompletion';
+    if (filter === 'community') return event.user !== 'You';
     if (filter === 'me') return event.user === 'You';
-    return true;
+    return true; // 'all'
   });
 
   return (
@@ -22,11 +21,10 @@ export function TimelineFeed() {
       <CreatePost />
       
       <Tabs defaultValue="all" className="w-full" onValueChange={setFilter}>
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="all">All</TabsTrigger>
-          <TabsTrigger value="me">Only Me</TabsTrigger>
-          <TabsTrigger value="posts">Posts</TabsTrigger>
-          <TabsTrigger value="activity">Habit Activity</TabsTrigger>
+          <TabsTrigger value="community">Community</TabsTrigger>
+          <TabsTrigger value="me">Me</TabsTrigger>
         </TabsList>
         <div className="mt-6 space-y-6">
           {filteredEvents.length > 0 ? (
