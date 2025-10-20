@@ -9,14 +9,21 @@ import { toast } from './use-toast';
 const HABITS_STORAGE_KEY = 'habitzen-habits';
 
 function createInitialHabits(): Habit[] {
+  // Avoid creating new Date objects repeatedly in a loop for performance.
+  const now = new Date();
+  const nowISO = now.toISOString();
+  const date1 = formatISO(subDays(now, 1), { representation: 'date' });
+  const date2 = formatISO(subDays(now, 2), { representation: 'date' });
+  const date4 = formatISO(subDays(now, 4), { representation: 'date' });
+
   return DEFAULT_HABITS.map((habit, index) => ({
     ...habit,
-    id: `habit-${Date.now()}-${index}`,
-    createdAt: new Date().toISOString(),
+    id: `habit-${now.getTime()}-${index}`,
+    createdAt: nowISO,
     completions: [
-      { date: formatISO(subDays(new Date(), 1), { representation: 'date' }) },
-      { date: formatISO(subDays(new Date(), 2), { representation: 'date' }) },
-      { date: formatISO(subDays(new Date(), 4), { representation: 'date' }) },
+      { date: date1 },
+      { date: date2 },
+      { date: date4 },
     ],
   }));
 }
@@ -26,20 +33,20 @@ export function useHabits() {
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
+    let initialHabits: Habit[];
     try {
       const storedHabits = localStorage.getItem(HABITS_STORAGE_KEY);
       if (storedHabits) {
-        setHabits(JSON.parse(storedHabits));
+        initialHabits = JSON.parse(storedHabits);
       } else {
-        const initialHabits = createInitialHabits();
-        setHabits(initialHabits);
+        initialHabits = createInitialHabits();
         localStorage.setItem(HABITS_STORAGE_KEY, JSON.stringify(initialHabits));
       }
     } catch (error) {
       console.error('Failed to load habits from localStorage', error);
-      // Fallback to default if localStorage fails
-      setHabits(createInitialHabits());
+      initialHabits = createInitialHabits();
     } finally {
+      setHabits(initialHabits);
       setIsLoaded(true);
     }
   }, []);
@@ -50,6 +57,11 @@ export function useHabits() {
         localStorage.setItem(HABITS_STORAGE_KEY, JSON.stringify(habits));
       } catch (error) {
         console.error('Failed to save habits to localStorage', error);
+        toast({
+            variant: 'destructive',
+            title: 'Error Saving Data',
+            description: 'Your changes could not be saved to your device.',
+        });
       }
     }
   }, [habits, isLoaded]);
@@ -74,15 +86,9 @@ export function useHabits() {
   const updateHabit = useCallback(
     (habitId: string, updatedData: Omit<Habit, 'id' | 'createdAt' | 'completions'>) => {
       setHabits(prevHabits =>
-        prevHabits.map(habit => {
-          if (habit.id === habitId) {
-            return {
-              ...habit,
-              ...updatedData,
-            };
-          }
-          return habit;
-        })
+        prevHabits.map(habit => 
+          habit.id === habitId ? { ...habit, ...updatedData } : habit
+        )
       );
       toast({
         title: 'Habit Updated',
@@ -112,16 +118,10 @@ export function useHabits() {
       setHabits(prevHabits =>
         prevHabits.map(habit => {
           if (habit.id === habitId) {
-            const completionIndex = habit.completions.findIndex(c => c.date === date);
-            let newCompletions;
-
-            if (completionIndex > -1) {
-              // Remove completion
-              newCompletions = habit.completions.filter((_, index) => index !== completionIndex);
-            } else {
-              // Add completion
-              newCompletions = [...habit.completions, { date }];
-            }
+            const isCompleted = habit.completions.some(c => c.date === date);
+            const newCompletions = isCompleted
+              ? habit.completions.filter(c => c.date !== date)
+              : [...habit.completions, { date }];
             return { ...habit, completions: newCompletions };
           }
           return habit;
