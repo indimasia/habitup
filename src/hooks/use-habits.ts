@@ -40,7 +40,7 @@ function habitsReducer(state: State, action: Action): State {
       return {
         ...state,
         habits: state.habits.map(habit =>
-          habit.id === action.payload.id ? { ...habit, ...action.payload.data, frequency: 'daily' } : habit
+          habit.id === action.payload.id ? { ...habit, ...action.payload.data } : habit
         ),
       };
     case 'DELETE_HABIT':
@@ -82,7 +82,6 @@ function createInitialHabits(): Habit[] {
     id: `habit-${now.getTime()}-${index}`,
     createdAt: now.toISOString(),
     completions: [{ date: date1 }, { date: date2 }, { date: date4 }],
-    frequency: 'daily' as const,
   }));
 }
 
@@ -130,7 +129,6 @@ export function useHabits() {
       id: `habit-${Date.now()}`,
       createdAt: new Date().toISOString(),
       completions: [],
-      frequency: 'daily',
     };
     dispatch({ type: 'ADD_HABIT', payload: newHabit });
     toast({
@@ -140,7 +138,7 @@ export function useHabits() {
   }, []);
 
   const updateHabit = useCallback((habitId: string, updatedData: Partial<Omit<Habit, 'id'>>) => {
-    dispatch({ type: 'UPDATE_HABIT', payload: { id: habitId, data: { ...updatedData, frequency: 'daily' } } });
+    dispatch({ type: 'UPDATE_HABIT', payload: { id: habitId, data: updatedData } });
     toast({
       title: 'Habit Updated',
       description: `Your habit "${updatedData.name}" has been saved.`,

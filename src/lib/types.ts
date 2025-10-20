@@ -3,9 +3,10 @@ export type Habit = {
   name: string;
   description: string;
   icon: string;
-  frequency: 'daily' | DayOfWeek[];
+  frequency: 'daily'; // All habits are daily now
   completions: { date: string }[]; // YYYY-MM-DD
   createdAt: string; // ISO string
+  isPrivate: boolean;
 };
 
 export const DAY_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] as const;

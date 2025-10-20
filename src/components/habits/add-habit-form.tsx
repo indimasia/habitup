@@ -22,11 +22,13 @@ import { useHabits } from '@/hooks/use-habits';
 import { Habit } from '@/lib/types';
 import { IconPicker } from './icon-picker';
 import { HabitIcon } from '@/lib/icons';
+import { Switch } from '../ui/switch';
 
 const addHabitSchema = z.object({
     name: z.string().min(3, 'Habit name must be at least 3 characters long.'),
     description: z.string().max(200, 'Description is too long.').optional(),
     icon: z.string().min(1, 'Please select an icon.'),
+    isPrivate: z.boolean().default(false),
   });
 
 type AddHabitFormValues = z.infer<typeof addHabitSchema>;
@@ -46,6 +48,7 @@ export function AddHabitForm({ habitToEdit }: AddHabitFormProps) {
       name: '',
       description: '',
       icon: 'Repeat',
+      isPrivate: false,
     },
   });
 
@@ -55,6 +58,7 @@ export function AddHabitForm({ habitToEdit }: AddHabitFormProps) {
         name: habitToEdit.name,
         description: habitToEdit.description,
         icon: habitToEdit.icon,
+        isPrivate: habitToEdit.isPrivate,
       });
     }
   }, [habitToEdit, form]);
@@ -64,7 +68,8 @@ export function AddHabitForm({ habitToEdit }: AddHabitFormProps) {
       name: data.name,
       description: data.description || '',
       icon: data.icon as HabitIcon,
-      frequency: 'daily' as const, // All habits are daily now
+      isPrivate: data.isPrivate,
+      frequency: 'daily' as const,
     };
 
     if (isEditMode && habitToEdit) {
@@ -115,6 +120,28 @@ export function AddHabitForm({ habitToEdit }: AddHabitFormProps) {
                 <IconPicker value={field.value as HabitIcon} onChange={field.onChange} />
               </FormControl>
               <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="isPrivate"
+          render={({ field }) => (
+            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+              <div className="space-y-0.5">
+                <FormLabel className="text-base">
+                  Private Habit
+                </FormLabel>
+                <FormDescription>
+                  Private habits will not appear on the public leaderboard.
+                </FormDescription>
+              </div>
+              <FormControl>
+                <Switch
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
+              </FormControl>
             </FormItem>
           )}
         />

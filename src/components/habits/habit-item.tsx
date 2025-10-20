@@ -3,7 +3,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Habit } from '@/lib/types';
 import { cn, calculateCurrentStreak } from '@/lib/utils';
-import { Flame, Lightbulb, MoreVertical, Pencil, Trash2 } from 'lucide-react';
+import { Flame, Lightbulb, MoreVertical, Pencil, Trash2, Lock } from 'lucide-react';
 import { habitIcons } from '@/lib/icons';
 import { AITipGenerator } from './ai-tip-generator';
 import {
@@ -126,6 +126,11 @@ export function HabitItem({ habit, isCompleted, onToggle }: HabitItemProps) {
                     <div className="flex items-center gap-1 text-sm font-medium" title={`${streak}-day streak`}>
                     <Flame className="h-5 w-5 text-amber-500" />
                     <span className="font-headline">{streak}</span>
+                    </div>
+                )}
+                 {habit.isPrivate && (
+                    <div className="flex items-center gap-1 text-sm font-medium" title="Private habit">
+                        <Lock className="h-4 w-4 text-muted-foreground/80" />
                     </div>
                 )}
             </div>
