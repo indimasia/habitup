@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect, useMemo } from 'react';
-import { format, subDays, isSameDay } from 'date-fns';
+import { format, subDays, addDays, isSameDay, isAfter, isBefore } from 'date-fns';
 import { useHabits } from '@/hooks/use-habits';
 import { DAY_NAMES, type Habit } from '@/lib/types';
 import { Progress } from '@/components/ui/progress';
@@ -8,9 +8,10 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { HabitItem } from './habit-item';
 import Link from 'next/link';
 import { Button } from '../ui/button';
-import { Card, CardContent } from '../ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
-const PastDayHabitList = ({ date, habits, onToggle }: { date: Date, habits: Habit[], onToggle: (habitId: string, date: string) => void }) => {
+const DayHabitList = ({ date, habits, onToggle }: { date: Date, habits: Habit[], onToggle: (habitId: string, date: string) => void }) => {
   const dateStr = format(date, 'yyyy-MM-dd');
   const dayOfWeek = DAY_NAMES[date.getDay()];
 
@@ -32,64 +33,59 @@ const PastDayHabitList = ({ date, habits, onToggle }: { date: Date, habits: Habi
   const progress = habitsForDay.length > 0 ? (completedCount / habitsForDay.length) * 100 : 0;
 
   return (
-    <Card>
-      <CardContent className="p-4">
-        <div className="flex justify-between items-center mb-4">
-            <div>
-                <h2 className="text-xl font-bold font-headline text-foreground">
-                    {isSameDay(date, new Date()) ? 'Today' : format(date, 'EEEE, MMMM do')}
-                </h2>
-                <p className="text-muted-foreground mt-1 text-sm">
-                    {habitsForDay.length > 0
-                    ? `${completedCount} of ${habitsForDay.length} habits completed.`
-                    : "No habits scheduled for this day."}
-                </p>
-            </div>
-        </div>
-        
+    <>
+      <div className="text-center mb-4">
+        <p className="text-muted-foreground mt-1 text-sm">
+            {habitsForDay.length > 0
+            ? `${completedCount} of ${habitsForDay.length} habits completed.`
+            : "No habits scheduled for this day."}
+        </p>
         {habitsForDay.length > 0 && (
-            <Progress value={progress} className="h-2 mb-4" />
+            <Progress value={progress} className="h-2 mt-2" />
         )}
+      </div>
 
-        <div className="space-y-3">
-          {habitsForDay.map(habit => (
-            <HabitItem
-              key={`${habit.id}-${dateStr}`}
-              habit={habit}
-              isCompleted={habit.completions.some(c => c.date === dateStr)}
-              onToggle={() => onToggle(habit.id, dateStr)}
-            />
-          ))}
-        </div>
-      </CardContent>
-    </Card>
+      <div className="space-y-3">
+        {habitsForDay.map(habit => (
+          <HabitItem
+            key={`${habit.id}-${dateStr}`}
+            habit={habit}
+            isCompleted={habit.completions.some(c => c.date === dateStr)}
+            onToggle={() => onToggle(habit.id, dateStr)}
+          />
+        ))}
+      </div>
+    </>
   );
 };
 
 
 export function HabitDashboard() {
   const { habits, toggleHabitCompletion, isLoaded } = useHabits();
-  const [today, setToday] = useState(new Date());
-
-  // Update date every minute to catch day changes
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setToday(new Date());
-    }, 60000);
-    return () => clearInterval(timer);
-  }, []);
+  const [currentDate, setCurrentDate] = useState(new Date());
 
   const handleToggle = (habitId: string, date: string) => {
     toggleHabitCompletion(habitId, date);
   };
   
-  const recentDays = useMemo(() => {
-      const days = [];
-      for (let i = 0; i < 7; i++) {
-          days.push(subDays(today, i));
-      }
-      return days;
-  }, [today]);
+  const today = new Date();
+  const sevenDaysAgo = subDays(today, 6);
+
+  const canGoBack = !isSameDay(currentDate, sevenDaysAgo);
+  const canGoForward = !isSameDay(currentDate, today);
+
+  const handlePrevDay = () => {
+    if (canGoBack) {
+      setCurrentDate(prevDate => subDays(prevDate, 1));
+    }
+  };
+
+  const handleNextDay = () => {
+    if (canGoForward) {
+      setCurrentDate(prevDate => addDays(prevDate, 1));
+    }
+  };
+
 
   if (!isLoaded) {
     return (
@@ -115,16 +111,30 @@ export function HabitDashboard() {
       )
   }
 
+  const dateLabel = isSameDay(currentDate, today) ? 'Today' : format(currentDate, 'EEEE, MMMM do');
+
   return (
-    <div className="space-y-4">
-        {recentDays.map((day) => (
-            <PastDayHabitList
-                key={day.toISOString()}
-                date={day}
-                habits={habits}
-                onToggle={handleToggle}
-            />
-        ))}
-    </div>
+    <Card>
+      <CardHeader>
+        <div className="flex justify-between items-center">
+          <Button variant="ghost" size="icon" onClick={handlePrevDay} disabled={!canGoBack} aria-label="Previous day">
+            <ChevronLeft className="h-6 w-6" />
+          </Button>
+          <CardTitle className="text-xl font-bold font-headline text-center">
+            {dateLabel}
+          </CardTitle>
+          <Button variant="ghost" size="icon" onClick={handleNextDay} disabled={!canGoForward} aria-label="Next day">
+            <ChevronRight className="h-6 w-6" />
+          </Button>
+        </div>
+      </CardHeader>
+      <CardContent>
+          <DayHabitList
+              date={currentDate}
+              habits={habits}
+              onToggle={handleToggle}
+          />
+      </CardContent>
+    </Card>
   );
 }
