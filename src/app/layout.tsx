@@ -6,7 +6,7 @@ import { AuthProvider } from '@/context/auth-context';
 import { AppContent } from '@/components/layout/app-content';
 
 export const metadata: Metadata = {
-  title: 'HabitZen',
+  title: 'HabitUp',
   description: 'Track and build daily habits with ease.',
 };
 

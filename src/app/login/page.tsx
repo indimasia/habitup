@@ -2,7 +2,7 @@
 import { useAuth } from '@/context/auth-context';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Leaf } from 'lucide-react';
+import { TrendingUp } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { Input } from '@/components/ui/input';
@@ -30,9 +30,9 @@ export default function LoginPage() {
       <Card className="w-full max-w-sm">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
-            <Leaf className="h-10 w-10 text-primary" />
+            <TrendingUp className="h-10 w-10 text-primary" />
           </div>
-          <CardTitle className="text-2xl font-headline">Welcome to HabitZen</CardTitle>
+          <CardTitle className="text-2xl font-headline">Welcome to HabitUp</CardTitle>
           <CardDescription>Sign in to continue your journey.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
