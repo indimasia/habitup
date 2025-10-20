@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { format, subDays, addDays, isSameDay, isToday } from 'date-fns';
 import { useHabits } from '@/hooks/use-habits';
 import { DAY_NAMES, type Habit } from '@/lib/types';
@@ -67,24 +67,16 @@ export function HabitDashboard() {
   const handleToggle = (habitId: string, date: string) => {
     toggleHabitCompletion(habitId, date);
   };
-  
-  const today = new Date();
-  const yesterday = subDays(today, 1);
-
-  const isViewingToday = isSameDay(currentDate, today);
 
   const handlePrevDay = () => {
-    if (isViewingToday) {
-      setCurrentDate(yesterday);
-    }
+    setCurrentDate(subDays(currentDate, 1));
   };
 
   const handleNextDay = () => {
-    if (!isViewingToday) {
-      setCurrentDate(today);
-    }
+    setCurrentDate(addDays(currentDate, 1));
   };
 
+  const isViewingToday = isToday(currentDate);
 
   if (!isLoaded) {
     return (
@@ -110,13 +102,13 @@ export function HabitDashboard() {
       )
   }
 
-  const dateLabel = isToday(currentDate) ? 'Today' : 'Yesterday';
+  const dateLabel = isToday(currentDate) ? 'Today' : format(currentDate, 'MMM d, yyyy');
 
   return (
     <Card>
       <CardHeader>
         <div className="flex justify-between items-center">
-          <Button variant="ghost" size="icon" onClick={handlePrevDay} disabled={!isViewingToday} aria-label="Previous day">
+          <Button variant="ghost" size="icon" onClick={handlePrevDay} aria-label="Previous day">
             <ChevronLeft className="h-6 w-6" />
           </Button>
           <CardTitle className="text-xl font-bold font-headline text-center">
