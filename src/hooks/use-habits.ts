@@ -1,10 +1,10 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import type { Habit, DayOfWeek } from '@/lib/types';
+import type { Habit } from '@/lib/types';
 import { DEFAULT_HABITS } from '@/lib/data';
 import { formatISO, subDays } from 'date-fns';
-import { useToast } from './use-toast';
+import { toast } from './use-toast';
 
 const HABITS_STORAGE_KEY = 'habitzen-habits';
 
@@ -22,7 +22,6 @@ function createInitialHabits(): Habit[] {
 }
 
 export function useHabits() {
-  const { toast } = useToast();
   const [habits, setHabits] = useState<Habit[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
 
@@ -69,7 +68,7 @@ export function useHabits() {
         description: `You're on your way to building "${newHabit.name}".`,
       });
     },
-    [toast]
+    []
   );
 
   const updateHabit = useCallback(
@@ -90,7 +89,7 @@ export function useHabits() {
         description: `Your habit "${updatedData.name}" has been saved.`,
       });
     },
-    [toast]
+    []
   );
 
   const deleteHabit = useCallback(
@@ -105,7 +104,7 @@ export function useHabits() {
         });
       }
     },
-    [habits, toast]
+    [habits]
   );
 
   const toggleHabitCompletion = useCallback(

@@ -182,7 +182,7 @@ export function AddHabitForm({ habitToEdit }: AddHabitFormProps) {
                 <div className="mb-4">
                   <FormLabel>Select Days</FormLabel>
                 </div>
-                <div className="grid grid-cols-4 sm:grid-cols-7 gap-2">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                 {DAY_NAMES.map(day => (
                   <FormField
                     key={day}
@@ -192,7 +192,7 @@ export function AddHabitForm({ habitToEdit }: AddHabitFormProps) {
                       return (
                         <FormItem
                           key={day}
-                          className="flex flex-row items-start space-x-3 space-y-0"
+                          className="flex flex-row items-center space-x-2 space-y-0"
                         >
                           <FormControl>
                             <Checkbox
@@ -208,7 +208,7 @@ export function AddHabitForm({ habitToEdit }: AddHabitFormProps) {
                               }}
                             />
                           </FormControl>
-                          <FormLabel className="font-normal">
+                          <FormLabel className="text-sm font-normal">
                             {day}
                           </FormLabel>
                         </FormItem>
