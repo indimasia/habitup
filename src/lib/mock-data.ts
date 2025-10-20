@@ -1,5 +1,5 @@
 
-import { User, Medal, Trophy, Star } from 'lucide-react';
+import { User, Medal, Trophy, Star, Award } from 'lucide-react';
 
 export const leaderboardUsers = [
   {
@@ -102,4 +102,3 @@ export const topHabits = [
         rankColor: 'text-muted-foreground',
     }
 ]
-
