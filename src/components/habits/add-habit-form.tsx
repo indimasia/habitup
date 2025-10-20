@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect } from 'react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -50,9 +50,14 @@ const addHabitSchema = z
 
 type AddHabitFormValues = z.infer<typeof addHabitSchema>;
 
-export function AddHabitForm() {
+interface AddHabitFormProps {
+    habitToEdit?: Habit;
+}
+
+export function AddHabitForm({ habitToEdit }: AddHabitFormProps) {
   const router = useRouter();
-  const { addHabit } = useHabits();
+  const { addHabit, updateHabit } = useHabits();
+  const isEditMode = !!habitToEdit;
   
   const form = useForm<AddHabitFormValues>({
     resolver: zodResolver(addHabitSchema),
@@ -65,16 +70,34 @@ export function AddHabitForm() {
     },
   });
 
+  useEffect(() => {
+    if (habitToEdit) {
+      form.reset({
+        name: habitToEdit.name,
+        description: habitToEdit.description,
+        icon: habitToEdit.icon,
+        frequencyType: habitToEdit.frequency === 'daily' ? 'daily' : 'specific',
+        specificDays: Array.isArray(habitToEdit.frequency) ? habitToEdit.frequency : [],
+      });
+    }
+  }, [habitToEdit, form]);
+
   const frequencyType = form.watch('frequencyType');
 
   function onSubmit(data: AddHabitFormValues) {
-    const newHabit: Omit<Habit, 'id' | 'createdAt' | 'completions'> = {
+    const habitData = {
       name: data.name,
       description: data.description || '',
       icon: data.icon as HabitIcon,
       frequency: data.frequencyType === 'daily' ? 'daily' : (data.specificDays as DayOfWeek[]),
     };
-    addHabit(newHabit);
+
+    if (isEditMode) {
+        updateHabit(habitToEdit.id, habitData);
+    } else {
+        addHabit(habitData);
+    }
+    
     router.push('/');
   }
 
@@ -129,7 +152,7 @@ export function AddHabitForm() {
               <FormControl>
                 <RadioGroup
                   onValueChange={field.onChange}
-                  defaultValue={field.value}
+                  value={field.value}
                   className="flex flex-col space-y-1"
                 >
                   <FormItem className="flex items-center space-x-3 space-y-0">
@@ -200,7 +223,10 @@ export function AddHabitForm() {
           />
         )}
         <Button type="submit" className="w-full sm:w-auto" disabled={form.formState.isSubmitting}>
-          {form.formState.isSubmitting ? 'Creating Habit...' : 'Create Habit'}
+          {form.formState.isSubmitting 
+            ? (isEditMode ? 'Saving Changes...' : 'Creating Habit...') 
+            : (isEditMode ? 'Save Changes' : 'Create Habit')
+          }
         </Button>
       </form>
     </Form>

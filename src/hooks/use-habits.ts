@@ -72,6 +72,42 @@ export function useHabits() {
     [toast]
   );
 
+  const updateHabit = useCallback(
+    (habitId: string, updatedData: Omit<Habit, 'id' | 'createdAt' | 'completions'>) => {
+      setHabits(prevHabits =>
+        prevHabits.map(habit => {
+          if (habit.id === habitId) {
+            return {
+              ...habit,
+              ...updatedData,
+            };
+          }
+          return habit;
+        })
+      );
+      toast({
+        title: 'Habit Updated',
+        description: `Your habit "${updatedData.name}" has been saved.`,
+      });
+    },
+    [toast]
+  );
+
+  const deleteHabit = useCallback(
+    (habitId: string) => {
+      const habitToDelete = habits.find(h => h.id === habitId);
+      if (habitToDelete) {
+        setHabits(prevHabits => prevHabits.filter(habit => habit.id !== habitId));
+        toast({
+          title: 'Habit Deleted',
+          description: `You have deleted the habit "${habitToDelete.name}".`,
+          variant: 'destructive',
+        });
+      }
+    },
+    [habits, toast]
+  );
+
   const toggleHabitCompletion = useCallback(
     (habitId: string, date: string) => {
       setHabits(prevHabits =>
@@ -103,5 +139,5 @@ export function useHabits() {
     [habits]
   );
 
-  return { habits, addHabit, toggleHabitCompletion, getHabitById, isLoaded };
+  return { habits, addHabit, updateHabit, deleteHabit, toggleHabitCompletion, getHabitById, isLoaded };
 }
