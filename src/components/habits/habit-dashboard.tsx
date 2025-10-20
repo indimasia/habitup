@@ -8,7 +8,6 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { HabitItem } from './habit-item';
 import Link from 'next/link';
 import { Button } from '../ui/button';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Card, CardContent } from '../ui/card';
 
 const PastDayHabitList = ({ date, habits, onToggle }: { date: Date, habits: Habit[], onToggle: (habitId: string, date: string) => void }) => {
@@ -38,7 +37,7 @@ const PastDayHabitList = ({ date, habits, onToggle }: { date: Date, habits: Habi
         <div className="flex justify-between items-center mb-4">
             <div>
                 <h2 className="text-xl font-bold font-headline text-foreground">
-                    {format(date, 'EEEE, MMMM do')}
+                    {isSameDay(date, new Date()) ? 'Today' : format(date, 'EEEE, MMMM do')}
                 </h2>
                 <p className="text-muted-foreground mt-1 text-sm">
                     {habitsForDay.length > 0
@@ -86,7 +85,7 @@ export function HabitDashboard() {
   
   const recentDays = useMemo(() => {
       const days = [];
-      for (let i = 0; i < 5; i++) {
+      for (let i = 0; i < 7; i++) {
           days.push(subDays(today, i));
       }
       return days;
@@ -94,29 +93,17 @@ export function HabitDashboard() {
 
   if (!isLoaded) {
     return (
-      <div>
-        <Skeleton className="h-8 w-1/3 mb-4" />
-        <Skeleton className="h-4 w-1/4 mb-4" />
-        <div className="space-y-4 mt-6">
-          <Skeleton className="h-20 w-full" />
-          <Skeleton className="h-20 w-full" />
-          <Skeleton className="h-20 w-full" />
-        </div>
+      <div className="space-y-4">
+        <Skeleton className="h-40 w-full" />
+        <Skeleton className="h-40 w-full" />
+        <Skeleton className="h-40 w-full" />
       </div>
     );
   }
 
-  const todayStr = format(today, 'yyyy-MM-dd');
-  const dayOfWeek = DAY_NAMES[today.getDay()];
+  const allHabitsScheduled = habits.length > 0;
 
-  const todaysHabits = habits.filter(habit => {
-      if (habit.frequency === 'daily') {
-        return true;
-      }
-      return habit.frequency.includes(dayOfWeek);
-  });
-  
-  if (todaysHabits.length === 0 && isLoaded) {
+  if (!allHabitsScheduled && isLoaded) {
       return (
         <div className="text-center py-16 px-6 border-2 border-dashed rounded-lg">
             <h2 className="text-xl font-semibold font-headline">No Habits Created Yet</h2>
@@ -129,25 +116,15 @@ export function HabitDashboard() {
   }
 
   return (
-    <div>
-        <Accordion type="single" collapsible defaultValue="item-0" className="w-full space-y-4">
-        {recentDays.map((day, index) => (
-            <AccordionItem value={`item-${index}`} key={day.toISOString()} className="border-none">
-                 <AccordionTrigger className="w-full bg-card p-4 rounded-lg shadow-sm hover:no-underline hover:shadow-md data-[state=open]:rounded-b-none">
-                    <div className="flex justify-between items-center w-full">
-                        <span className="font-headline text-lg">{isSameDay(day, today) ? 'Today' : format(day, 'EEEE, MMM d')}</span>
-                    </div>
-                </AccordionTrigger>
-                <AccordionContent className="p-0 border-t-0">
-                    <PastDayHabitList
-                        date={day}
-                        habits={habits}
-                        onToggle={handleToggle}
-                    />
-                </AccordionContent>
-            </AccordionItem>
+    <div className="space-y-4">
+        {recentDays.map((day) => (
+            <PastDayHabitList
+                key={day.toISOString()}
+                date={day}
+                habits={habits}
+                onToggle={handleToggle}
+            />
         ))}
-        </Accordion>
     </div>
   );
 }
