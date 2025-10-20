@@ -3,9 +3,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Habit } from '@/lib/types';
 import { cn, calculateCurrentStreak } from '@/lib/utils';
-import { Flame, Lightbulb, MoreVertical, Pencil, Trash2, Lock } from 'lucide-react';
+import { Flame, MoreVertical, Pencil, Trash2, Lock } from 'lucide-react';
 import { habitIcons } from '@/lib/icons';
-import { AITipGenerator } from './ai-tip-generator';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -68,11 +67,6 @@ export function HabitItem({ habit, isCompleted, onToggle }: HabitItemProps) {
           </div>
 
           <div className="hidden sm:flex items-center gap-1 self-start">
-              <AITipGenerator habit={habit}>
-                <button className="p-2 rounded-full hover:bg-accent transition-colors" aria-label="Get a personalized tip">
-                    <Lightbulb className="h-5 w-5 text-amber-500" />
-                </button>
-              </AITipGenerator>
               <AlertDialog>
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -135,12 +129,6 @@ export function HabitItem({ habit, isCompleted, onToggle }: HabitItemProps) {
                 )}
             </div>
             <div className="flex sm:hidden items-center sm:gap-1">
-                <AITipGenerator habit={habit}>
-                <button className="p-2 rounded-full hover:bg-accent transition-colors" aria-label="Get a personalized tip">
-                    <Lightbulb className="h-5 w-5 text-amber-500" />
-                </button>
-                </AITipGenerator>
-                
                 <AlertDialog>
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
