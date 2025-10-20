@@ -128,7 +128,7 @@ function HabitHistory() {
             </div>
             <CardDescription>Select a date to view your habit completions.</CardDescription>
         </CardHeader>
-        <CardContent className="grid gap-8 md:grid-cols-[280px_1fr]">
+        <CardContent className="space-y-6">
           <div className="flex justify-center">
             <Calendar
               mode="single"
