@@ -68,16 +68,18 @@ export function useHabits() {
 
   const addHabit = useCallback(
     (newHabitData: Omit<Habit, 'id' | 'createdAt' | 'completions'>) => {
-      const newHabit: Habit = {
-        ...newHabitData,
-        id: `habit-${Date.now()}`,
-        createdAt: new Date().toISOString(),
-        completions: [],
-      };
-      setHabits(prevHabits => [...prevHabits, newHabit]);
-      toast({
-        title: 'Habit Created!',
-        description: `You're on your way to building "${newHabit.name}".`,
+      setHabits(prevHabits => {
+        const newHabit: Habit = {
+          ...newHabitData,
+          id: `habit-${Date.now()}`,
+          createdAt: new Date().toISOString(),
+          completions: [],
+        };
+        toast({
+          title: 'Habit Created!',
+          description: `You're on your way to building "${newHabit.name}".`,
+        });
+        return [...prevHabits, newHabit];
       });
     },
     []
