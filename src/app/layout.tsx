@@ -26,7 +26,7 @@ export default function RootLayout({
       </head>
       <body className={cn('min-h-screen bg-background font-body antialiased')}>
         <div className="relative flex flex-col min-h-screen">
-          <div className="flex-grow">
+          <div className="flex-grow pb-16">
             {children}
           </div>
           <BottomNav />

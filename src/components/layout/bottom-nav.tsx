@@ -3,18 +3,24 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Trophy, Bell, User } from 'lucide-react';
+import { Home, Trophy, Activity, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const navItems = [
   { href: '/', label: 'Home', icon: Home },
   { href: '/leaderboard', label: 'Leaderboard', icon: Trophy },
-  { href: '/updates', label: 'Updates', icon: Bell },
+  { href: '/timeline', label: 'Timeline', icon: Activity },
   { href: '/profile', label: 'Profile', icon: User },
 ];
 
 export default function BottomNav() {
   const pathname = usePathname();
+
+  // The /add-habit route should not show the bottom nav
+  if (pathname.startsWith('/add-habit') || pathname.startsWith('/edit-habit')) {
+    return null;
+  }
+
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-t">
