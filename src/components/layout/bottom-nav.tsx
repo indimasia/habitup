@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Home, Trophy, Activity, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/context/auth-context';
 
 const navItems = [
   { href: '/', label: 'Home', icon: Home },
@@ -15,6 +16,11 @@ const navItems = [
 
 export default function BottomNav() {
   const pathname = usePathname();
+  const { isAuthenticated } = useAuth();
+
+  if (!isAuthenticated) {
+    return null;
+  }
 
   // The /add-habit route should not show the bottom nav
   if (pathname.startsWith('/add-habit') || pathname.startsWith('/edit-habit')) {

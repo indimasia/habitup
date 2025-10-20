@@ -1,19 +1,19 @@
 'use client';
 
 import { useHabits } from '@/hooks/use-habits';
-import Header from '@/components/layout/header';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
-import { Flame, CheckCircle, TrendingUp, History } from 'lucide-react';
+import { Flame, CheckCircle, TrendingUp, History, LogOut } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { calculateLongestStreak } from '@/lib/utils';
 import { HabitItemReadOnly } from '@/components/habits/habit-item-read-only';
 import { format } from 'date-fns';
 import { Calendar } from '@/components/ui/calendar';
+import { useAuth } from '@/context/auth-context';
 
 function ProfileStats() {
   const { habits, isLoaded } = useHabits();
@@ -64,8 +64,9 @@ function ProfileStats() {
 }
 
 function AccountSettings() {
-    const [username, setUsername] = useState('YourUsername');
-    const avatarUrl = `https://api.dicebear.com/7.x/initials/svg?seed=${username}`;
+    const { user, logout } = useAuth();
+    const [username, setUsername] = useState(user?.name || 'Anonymous');
+    const avatarUrl = user?.photoURL || `https://api.dicebear.com/7.x/initials/svg?seed=${username}`;
 
     return (
         <Card>
@@ -93,8 +94,12 @@ function AccountSettings() {
                     <Input id="confirm-password" type="password" placeholder="••••••••" />
                 </div>
             </CardContent>
-            <CardContent>
+            <CardContent className="flex flex-col gap-4">
                  <Button>Save Changes</Button>
+                 <Button variant="outline" onClick={logout}>
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Sign Out
+                 </Button>
             </CardContent>
         </Card>
     )
@@ -145,8 +150,6 @@ function HabitHistory() {
 
 export default function ProfilePage() {
   return (
-    <div className="flex flex-col min-h-screen">
-      <Header />
       <main className="flex-1 container mx-auto p-4 md:p-6 lg:p-8 max-w-6xl space-y-8">
         <div>
             <h1 className="text-3xl font-bold font-headline">Your Profile</h1>
@@ -167,6 +170,5 @@ export default function ProfilePage() {
         </div>
 
       </main>
-    </div>
   );
 }

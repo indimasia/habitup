@@ -2,7 +2,8 @@ import type { Metadata } from 'next';
 import './globals.css';
 import { cn } from '@/lib/utils';
 import { Toaster } from '@/components/ui/toaster';
-import BottomNav from '@/components/layout/bottom-nav';
+import { AuthProvider } from '@/context/auth-context';
+import { AppContent } from '@/components/layout/app-content';
 
 export const metadata: Metadata = {
   title: 'HabitZen',
@@ -25,13 +26,12 @@ export default function RootLayout({
         />
       </head>
       <body className={cn('min-h-screen bg-background font-body antialiased')}>
-        <div className="relative flex flex-col min-h-screen">
-          <div className="flex-grow pb-16">
+        <AuthProvider>
+          <AppContent>
             {children}
-          </div>
-          <BottomNav />
-        </div>
-        <Toaster />
+          </AppContent>
+          <Toaster />
+        </AuthProvider>
       </body>
     </html>
   );
