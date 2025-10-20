@@ -4,13 +4,16 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CreatePost } from "./create-post";
 import { PostCard } from './post-card';
 import { HabitCompletionCard } from './habit-completion-card';
-import { timelineEvents } from '@/lib/mock-data';
+import { timelineEvents as initialTimelineEvents } from '@/lib/mock-data';
 import { Switch } from '../ui/switch';
 import { Label } from '../ui/label';
+import { useAuth } from '@/context/auth-context';
 
 export function TimelineFeed() {
+  const { user } = useAuth();
   const [mainFilter, setMainFilter] = useState('all'); // 'all', 'posts', 'updates'
   const [showMineOnly, setShowMineOnly] = useState(false);
+  const [timelineEvents, setTimelineEvents] = useState(initialTimelineEvents);
 
   const filteredEvents = timelineEvents.filter(event => {
     const typeMatch = 
@@ -18,14 +21,30 @@ export function TimelineFeed() {
         (mainFilter === 'posts' && event.type === 'post') ||
         (mainFilter === 'updates' && event.type === 'habitCompletion');
     
-    const userMatch = !showMineOnly || (showMineOnly && event.user === 'You');
+    const currentUser = user?.name || 'You';
+    const userMatch = !showMineOnly || (showMineOnly && event.user === currentUser);
 
     return typeMatch && userMatch;
   });
+  
+  const handlePostCreated = (newPostContent: string) => {
+    const currentUser = user?.name || 'You';
+    const newPost = {
+        id: `event-${Date.now()}`,
+        type: 'post' as const,
+        user: currentUser,
+        avatar: `https://api.dicebear.com/7.x/initials/svg?seed=${currentUser}`,
+        timestamp: 'Just now',
+        content: newPostContent,
+        likes: 0,
+        comments: [],
+    };
+    setTimelineEvents([newPost, ...timelineEvents]);
+  };
 
   return (
     <div className="space-y-6">
-      <CreatePost />
+      <CreatePost onPostCreated={handlePostCreated} />
       
       <Tabs defaultValue="all" className="w-full" onValueChange={setMainFilter}>
         <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
