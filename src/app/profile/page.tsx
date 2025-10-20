@@ -11,7 +11,7 @@ import { Separator } from '@/components/ui/separator';
 import { Flame, CheckCircle, TrendingUp, History } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { calculateLongestStreak } from '@/lib/utils';
-import { HabitItem } from '@/components/habits/habit-item';
+import { HabitItemReadOnly } from '@/components/habits/habit-item-read-only';
 import { format } from 'date-fns';
 import { Calendar } from '@/components/ui/calendar';
 
@@ -64,6 +64,9 @@ function ProfileStats() {
 }
 
 function AccountSettings() {
+    const [username, setUsername] = useState('YourUsername');
+    const avatarUrl = `https://api.dicebear.com/7.x/initials/svg?seed=${username}`;
+
     return (
         <Card>
             <CardHeader>
@@ -73,14 +76,13 @@ function AccountSettings() {
             <CardContent className="space-y-4">
                  <div className="flex items-center space-x-4">
                     <Avatar className="h-16 w-16">
-                        <AvatarImage src="/avatars/01.png" alt="User Avatar" />
-                        <AvatarFallback>U</AvatarFallback>
+                        <AvatarImage src={avatarUrl} alt="User Avatar" />
+                        <AvatarFallback>{username.charAt(0).toUpperCase()}</AvatarFallback>
                     </Avatar>
-                    <Button variant="outline">Change Avatar</Button>
                 </div>
                 <div className="space-y-2">
                     <Label htmlFor="username">Username</Label>
-                    <Input id="username" defaultValue="YourUsername" />
+                    <Input id="username" value={username} onChange={(e) => setUsername(e.target.value)} />
                 </div>
                 <div className="space-y-2">
                     <Label htmlFor="password">New Password</Label>
@@ -99,7 +101,7 @@ function AccountSettings() {
 }
 
 function HabitHistory() {
-  const { habits, toggleHabitCompletion } = useHabits();
+  const { habits } = useHabits();
   const [date, setDate] = useState<Date | undefined>(new Date());
   
   const selectedDateStr = date ? format(date, 'yyyy-MM-dd') : '';
@@ -125,11 +127,10 @@ function HabitHistory() {
           <div className="space-y-3">
              {habits.length > 0 ? (
                 habits.map(habit => (
-                    <HabitItem
+                    <HabitItemReadOnly
                         key={`${habit.id}-${selectedDateStr}`}
                         habit={habit}
                         isCompleted={habit.completions.some(c => c.date === selectedDateStr)}
-                        onToggle={() => toggleHabitCompletion(habit.id, selectedDateStr)}
                     />
                 ))
             ) : (
