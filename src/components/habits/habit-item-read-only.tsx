@@ -2,9 +2,10 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Habit } from '@/lib/types';
-import { cn, calculateCurrentStreak } from '@/lib/utils';
+import { cn } from '@/lib/utils';
 import { Flame, Lock } from 'lucide-react';
 import { habitIcons } from '@/lib/icons';
+import { RecentStreak } from './recent-streak';
 
 interface HabitItemReadOnlyProps {
   habit: Habit;
@@ -13,7 +14,6 @@ interface HabitItemReadOnlyProps {
 
 export function HabitItemReadOnly({ habit, isCompleted }: HabitItemReadOnlyProps) {
   const Icon = habitIcons[habit.icon as keyof typeof habitIcons] || Flame;
-  const streak = calculateCurrentStreak(habit.completions);
   const uniqueId = `habit-${habit.id}-${new Date().getTime()}`;
 
   return (
@@ -51,12 +51,7 @@ export function HabitItemReadOnly({ habit, isCompleted }: HabitItemReadOnlyProps
                 <div className="flex items-center gap-1 text-sm font-medium">
                     <Icon className="h-5 w-5 text-primary/80" />
                 </div>
-                {streak > 0 && (
-                    <div className="flex items-center gap-1 text-sm font-medium" title={`${streak}-day streak`}>
-                    <Flame className="h-5 w-5 text-amber-500" />
-                    <span className="font-headline">{streak}</span>
-                    </div>
-                )}
+                <RecentStreak habit={habit} />
                  {habit.isPrivate && (
                     <div className="flex items-center gap-1 text-sm font-medium" title="Private habit">
                         <Lock className="h-4 w-4 text-muted-foreground/80" />

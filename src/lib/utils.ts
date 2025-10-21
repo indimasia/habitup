@@ -1,6 +1,6 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
-import { differenceInCalendarDays, isToday, isYesterday, parseISO, startOfToday } from 'date-fns';
+import { differenceInCalendarDays, isToday, isYesterday, parseISO, startOfToday, subDays, formatISO } from 'date-fns';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -70,4 +70,16 @@ export function calculateLongestStreak(completions: { date: string }[]): number 
     longestStreak = Math.max(longestStreak, currentStreak);
 
     return longestStreak;
+}
+
+export function getRecentStreak(completions: { date: string }[]): boolean[] {
+  const today = startOfToday();
+  const recentCompletions = new Set(completions.map(c => c.date));
+  const streak: boolean[] = [];
+  for (let i = 0; i < 5; i++) {
+    const date = subDays(today, i);
+    const dateStr = formatISO(date, { representation: 'date' });
+    streak.push(recentCompletions.has(dateStr));
+  }
+  return streak.reverse(); // So it shows past to present (left to right)
 }

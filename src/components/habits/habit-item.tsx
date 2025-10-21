@@ -2,7 +2,7 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Habit } from '@/lib/types';
-import { cn, calculateCurrentStreak } from '@/lib/utils';
+import { cn } from '@/lib/utils';
 import { Flame, MoreVertical, Pencil, Trash2, Lock } from 'lucide-react';
 import { habitIcons } from '@/lib/icons';
 import {
@@ -25,6 +25,8 @@ import {
 } from '@/components/ui/alert-dialog';
 import { useHabits } from '@/hooks/use-habits';
 import { Button } from '../ui/button';
+import { RecentStreak } from './recent-streak';
+import { useMemo } from 'react';
 
 interface HabitItemProps {
   habit: Habit;
@@ -34,8 +36,10 @@ interface HabitItemProps {
 
 export function HabitItem({ habit, isCompleted, onToggle }: HabitItemProps) {
   const Icon = habitIcons[habit.icon as keyof typeof habitIcons] || Flame;
-  const streak = calculateCurrentStreak(habit.completions);
   const { deleteHabit } = useHabits();
+  
+  // Memoize the unique ID to prevent it from changing on every render
+  const uniqueId = useMemo(() => `habit-${habit.id}-${new Date().getTime()}`, [habit.id]);
 
   return (
     <div
@@ -45,7 +49,7 @@ export function HabitItem({ habit, isCompleted, onToggle }: HabitItemProps) {
       )}
     >
       <Checkbox
-        id={`habit-${habit.id}-${new Date().getTime()}`}
+        id={uniqueId}
         checked={isCompleted}
         onCheckedChange={onToggle}
         aria-label={`Mark ${habit.name} as complete`}
@@ -55,7 +59,7 @@ export function HabitItem({ habit, isCompleted, onToggle }: HabitItemProps) {
         <div className="grid sm:grid-cols-[1fr_auto] sm:items-start gap-2">
           <div className='flex-1'>
             <label
-              htmlFor={`habit-${habit.id}-${new Date().getTime()}`}
+              htmlFor={uniqueId}
               className={cn(
                 'font-semibold font-headline text-base cursor-pointer transition-opacity',
                 isCompleted ? 'line-through text-muted-foreground' : 'text-foreground'
@@ -116,12 +120,7 @@ export function HabitItem({ habit, isCompleted, onToggle }: HabitItemProps) {
                 <div className="flex items-center gap-1 text-sm font-medium">
                     <Icon className="h-5 w-5 text-primary/80" />
                 </div>
-                {streak > 0 && (
-                    <div className="flex items-center gap-1 text-sm font-medium" title={`${streak}-day streak`}>
-                    <Flame className="h-5 w-5 text-amber-500" />
-                    <span className="font-headline">{streak}</span>
-                    </div>
-                )}
+                <RecentStreak habit={habit} />
                  {habit.isPrivate && (
                     <div className="flex items-center gap-1 text-sm font-medium" title="Private habit">
                         <Lock className="h-4 w-4 text-muted-foreground/80" />
