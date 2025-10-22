@@ -21,7 +21,7 @@ export function CreatePost({ onPostCreated }: CreatePostProps) {
     }
   };
 
-  const userName = user?.name || 'You';
+  const userName = user?.user_metadata?.name || user?.email || 'You';
   const userInitial = userName.charAt(0);
 
   return (

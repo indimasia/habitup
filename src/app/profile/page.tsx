@@ -65,14 +65,13 @@ function ProfileStats() {
 
 function AccountSettings() {
     const { user, logout } = useAuth();
-    const [username, setUsername] = useState(user?.name || 'Anonymous');
+    const [username, setUsername] = useState(user?.user_metadata?.name || user?.email || 'Anonymous');
     const [avatarUrl, setAvatarUrl] = useState('');
 
     useEffect(() => {
-        if (user?.name) {
-            setUsername(user.name);
-            setAvatarUrl(`https://api.dicebear.com/7.x/initials/svg?seed=${user.name}`);
-        }
+        const displayName = user?.user_metadata?.name || user?.email || 'Anonymous';
+        setUsername(displayName);
+        setAvatarUrl(`https://api.dicebear.com/7.x/initials/svg?seed=${displayName}`);
     }, [user]);
 
     return (

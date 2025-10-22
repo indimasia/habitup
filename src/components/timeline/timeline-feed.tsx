@@ -21,14 +21,14 @@ export function TimelineFeed() {
         (mainFilter === 'posts' && event.type === 'post') ||
         (mainFilter === 'updates' && event.type === 'habitCompletion');
     
-    const currentUser = user?.name || 'You';
+    const currentUser = user?.user_metadata?.name || user?.email || 'You';
     const userMatch = !showMineOnly || (showMineOnly && event.user === currentUser);
 
     return typeMatch && userMatch;
   });
   
   const handlePostCreated = (newPostContent: string) => {
-    const currentUser = user?.name || 'You';
+    const currentUser = user?.user_metadata?.name || user?.email || 'You';
     const newPost = {
         id: `event-${Date.now()}`,
         type: 'post' as const,

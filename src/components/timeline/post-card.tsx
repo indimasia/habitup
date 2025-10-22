@@ -33,7 +33,8 @@ export function PostCard({ post }) {
   const [editedContent, setEditedContent] = useState(post.content);
   const [isDeleted, setIsDeleted] = useState(false);
 
-  const isCurrentUserPost = post.user === 'You' || post.user === user?.name;
+  const currentUserName = user?.user_metadata?.name || user?.email || 'You';
+  const isCurrentUserPost = post.user === 'You' || post.user === currentUserName;
 
   const handleSave = () => {
     // In a real app, you'd call an API to update the post
@@ -148,8 +149,8 @@ export function PostCard({ post }) {
             ))}
             <div className="flex items-start gap-3 pt-4">
                 <Avatar className="h-8 w-8">
-                  <AvatarImage src={`https://api.dicebear.com/7.x/initials/svg?seed=${user?.name || 'You'}`} alt="Your avatar" />
-                  <AvatarFallback>{user?.name.charAt(0) || 'Y'}</AvatarFallback>
+                  <AvatarImage src={`https://api.dicebear.com/7.x/initials/svg?seed=${currentUserName}`} alt="Your avatar" />
+                  <AvatarFallback>{currentUserName.charAt(0) || 'Y'}</AvatarFallback>
                 </Avatar>
                 <div className="w-full">
                     <Textarea placeholder="Write a comment..." className="w-full min-h-[40px] bg-background" />
