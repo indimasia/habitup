@@ -17,8 +17,8 @@ interface FormErrors {
 // Supabase auth error mapping
 const mapAuthError = (error: string): string => {
   // Common Supabase auth error codes and messages
-  if (error.includes('Invalid login credentials') || error.includes('invalid_credentials')) {
-    return 'Invalid email or password';
+  if (error.includes('Invalid login credentials') || error.includes('invalid_credentials') || error.includes('Invalid email or password')) {
+    return 'Invalid email or password. Please check your credentials and try again.';
   }
   if (error.includes('Email not confirmed')) {
     return 'Please check your email and confirm your account';
@@ -32,8 +32,8 @@ const mapAuthError = (error: string): string => {
   if (error.includes('User not found')) {
     return 'Invalid email or password';
   }
-  // Generic fallback for unknown errors
-  return 'An unexpected error occurred. Please try again.';
+  // Return the error as-is if it's already user-friendly, otherwise use generic message
+  return error || 'An unexpected error occurred. Please try again.';
 };
 
 // Validation functions
@@ -59,7 +59,7 @@ const validatePassword = (password: string): string | undefined => {
 };
 
 export default function LoginPage() {
-  const { login, isAuthenticated } = useAuth();
+  const { login, isAuthenticated, isLoading: authIsLoading } = useAuth();
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -67,12 +67,21 @@ export default function LoginPage() {
   const [authError, setAuthError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const emailInputRef = useRef<HTMLInputElement>(null);
+  const passwordInputRef = useRef<HTMLInputElement>(null);
+  
+  // Add debug logging for state changes
+  // useEffect(() => {
+  //   console.log('LoginPage state changed:', { email, password, authError, isLoading, authIsLoading });
+  // }, [email, password, authError, isLoading, authIsLoading]);
 
   useEffect(() => {
-    if (isAuthenticated) {
+    console.log('Auth state changed:', { isAuthenticated, authIsLoading });
+    // Only redirect if we're sure about the auth state (not loading)
+    if (!authIsLoading && isAuthenticated) {
+      console.log('User is authenticated, redirecting...'); // Debug log
       router.push('/');
     }
-  }, [isAuthenticated, router]);
+  }, [isAuthenticated, authIsLoading, router]);
 
   // Focus on email field when component mounts
   useEffect(() => {
@@ -94,11 +103,13 @@ export default function LoginPage() {
 
   // Clear auth error when user starts typing
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log('Email input changed to:', e.target.value);
     setEmail(e.target.value);
     if (authError) setAuthError(null);
   };
 
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log('Password input changed to:', e.target.value);
     setPassword(e.target.value);
     if (authError) setAuthError(null);
   };
@@ -127,10 +138,20 @@ export default function LoginPage() {
     setIsLoading(true);
     
     try {
+      console.log('Attempting login with:', email); // Debug log
       const { error } = await login(email, password);
+      console.log('Login result:', { error }); // Debug log
+      
       if (error) {
         const userFriendlyError = mapAuthError(error);
+        console.log('Setting auth error:', userFriendlyError); // Debug log
         setAuthError(userFriendlyError);
+        // Don't clear the form on authentication errors - keep email and password values
+        // This allows users to easily correct their credentials without retyping everything
+      } else {
+        // Only clear form on successful login (though user will be redirected anyway)
+        setEmail('');
+        setPassword('');
       }
     } finally {
       setIsLoading(false);
@@ -156,8 +177,13 @@ export default function LoginPage() {
         </CardHeader>
         <CardContent className="space-y-4">
           {authError && (
-            <div className="p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md">
-              {authError}
+            <div className="p-4 text-sm text-red-700 bg-red-50 border border-red-300 rounded-lg shadow-sm">
+              <div className="flex items-center">
+                <svg className="w-4 h-4 mr-2 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                </svg>
+                {authError}
+              </div>
             </div>
           )}
           <div className="space-y-2">
@@ -181,6 +207,7 @@ export default function LoginPage() {
           <div className="space-y-2">
             <Label htmlFor="password">Password</Label>
             <Input 
+              ref={passwordInputRef}
               id="password" 
               type="password" 
               placeholder="••••••••"

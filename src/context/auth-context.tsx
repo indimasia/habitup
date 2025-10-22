@@ -58,6 +58,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Listen for auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        console.log('Auth state change:', event, session); // Debug log
         if (session?.user) {
           setUser(mapSupabaseUser(session.user));
         } else {
@@ -71,22 +72,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [supabase.auth]);
 
   const login = async (email: string, password: string): Promise<{ error?: string }> => {
-    setIsLoading(true);
+    // Don't set global loading state for login attempts to avoid interfering with form state
     
     try {
       const { data, error } = await signIn(email, password);
       
       if (error) {
-        setIsLoading(false);
+        console.log('Login error details:', error); // Debug log
+        
+        // Handle both error.message and error.code formats
+        const errorMessage = error.message || '';
+        const errorCode = error.code || '';
+        
         // Map Supabase errors to user-friendly messages
-        if (error.message.includes('Invalid login credentials')) {
+        if (errorMessage.includes('Invalid login credentials') || errorCode === 'invalid_credentials') {
           return { error: 'Invalid email or password' };
-        } else if (error.message.includes('Email not confirmed')) {
+        } else if (errorMessage.includes('Email not confirmed') || errorCode === 'email_not_confirmed') {
           return { error: 'Please check your email and confirm your account' };
-        } else if (error.message.includes('Too many requests')) {
+        } else if (errorMessage.includes('Too many requests') || errorCode === 'too_many_requests') {
           return { error: 'Too many login attempts. Please try again later.' };
-        } else {
+        } else if (errorMessage.includes('Network request failed') || errorCode === 'network_error') {
           return { error: 'Connection error. Please try again.' };
+        } else {
+          // Return the actual error message for debugging, or a generic message
+          return { error: errorMessage || 'An unexpected error occurred. Please try again.' };
         }
       }
 
@@ -95,10 +104,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         router.push('/');
       }
       
-      setIsLoading(false);
       return {};
     } catch (error) {
-      setIsLoading(false);
       console.error('Login error:', error);
       return { error: 'An unexpected error occurred' };
     }

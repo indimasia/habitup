@@ -12,16 +12,18 @@ export function AppContent({ children }: { children: React.ReactNode }) {
   const router = useRouter();
 
   useEffect(() => {
-    if (!isLoading && !isAuthenticated && pathname !== '/login') {
-      router.push('/login');
-    }
-    if (!isLoading && isAuthenticated && pathname === '/login') {
-      router.push('/');
+    // Only redirect after initial loading is complete
+    if (!isLoading) {
+      if (!isAuthenticated && pathname !== '/login') {
+        router.push('/login');
+      } else if (isAuthenticated && pathname === '/login') {
+        router.push('/');
+      }
     }
   }, [isAuthenticated, isLoading, pathname, router]);
 
-  if (isLoading) {
-    // You can return a global loading spinner here
+  // Show loading only during initial auth check, not during login attempts
+  if (isLoading && pathname !== '/login') {
     return (
         <div className="flex items-center justify-center min-h-screen">
             <div className="text-xl">Loading...</div>
@@ -29,12 +31,18 @@ export function AppContent({ children }: { children: React.ReactNode }) {
     );
   }
   
-  if (!isAuthenticated && pathname !== '/login') {
-    return null; // Don't render anything while redirecting
+  // Always render the login page, let it handle its own auth state
+  if (pathname === '/login') {
+    return (
+      <div className="relative flex flex-col min-h-screen">
+        {children}
+      </div>
+    );
   }
-
-  if (isAuthenticated && pathname === '/login') {
-    return null; // Don't render login page if authenticated
+  
+  // For protected pages, don't render if not authenticated
+  if (!isAuthenticated) {
+    return null;
   }
 
   const isLoginPage = pathname === '/login';
